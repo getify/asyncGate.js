@@ -13,18 +13,39 @@
     
     instanceAPI = function() {
       var chainAPI,
-          ready = false,
-          triggered = false
+          pool = [],
+          then_queue = []
       ;
       
+      function check_pool() {
+        if (pool !== true) {
+          for (var i=0; i<pool.length; i++) {
+            if (pool[i] !== true) return false;
+          }
+          pool = true;
+        }
+        return (pool === true);
+      }
+      
+      function do_queue() {
+        var fn;
+        while (fn = then_queue.shift()) fn();
+        then_queue = true;
+      }
+      
       chainAPI = {
-        and: function(fn) {
+        and: function() {
           return chainAPI;
         },
         then: function(fn) {
+          if (then_queue !== true) then_queue.push(fn);
+          else fn();
+          
           return chainAPI;
         }
       };
+      
+      chainAPI.and.apply({},arguments); // add in arguments passed as constructor parameters
       
       return chainAPI;
     };
