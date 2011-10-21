@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Testing asyncGate.js</title>
+
+<script src="ag.src.js"></script>
+<script>
+
+function asyncDelayFn(delay) {
+  return function(done) {
+    setTimeout(done,delay);
+  };
+}
+
+function doneLogMsg(msg) {
+  return function() {
+    var logmsgs = document.getElementById("logmsgs");
+    logmsgs.value += (logmsgs.value != "" ? "\n" : "") + msg;
+  };
+}
+
+var tests = [];
+
+tests.push(function(test_done){
+  $AG(asyncDelayFn(1000)).then(function(){
+    doneLogMsg("test #1 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG(asyncDelayFn(2000),asyncDelayFn(3000)).then(function(){
+    doneLogMsg("test #2 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG([asyncDelayFn(2000),asyncDelayFn(3000)]).then(function(){
+    doneLogMsg("test #3 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG([[],[asyncDelayFn(3000),asyncDelayFn(5000)]],[[[asyncDelayFn(1000)]]]).then(function(){
+    doneLogMsg("test #4 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG().and(asyncDelayFn(4000)).then(function(){
+    doneLogMsg("test #5 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG(asyncDelayFn(2000)).and(asyncDelayFn(3000)).then(function(){
+    doneLogMsg("test #6 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG(asyncDelayFn(1000)).and([asyncDelayFn(2000),asyncDelayFn(1000)]).then(function(){
+    doneLogMsg("test #7 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  var gate = $AG(asyncDelayFn(1000)).then(function(){
+    asyncDelayFn(500)(function(){
+      gate.then(function(){
+        doneLogMsg("test #8 passed")();
+        test_done();
+      });
+    });
+  });
+});
+tests.push(function(test_done){
+  var gate = $AG(asyncDelayFn(1000));
+  
+  asyncDelayFn(500)(function(){
+    gate.and(asyncDelayFn(2000));
+    
+    asyncDelayFn(3000)(function(){
+      gate.then(function(){
+        doneLogMsg("test #9 passed")();
+        test_done();
+      });
+    });
+  });
+});
+tests.push(function(test_done){
+  asyncDelayFn(200)(function(){
+    try {
+      $AG(asyncDelayFn(1000)).then(function(){})
+      .and(function(done){
+        doneLogMsg("test #10 failed")();
+      });
+    } catch (err) {
+      doneLogMsg("test #10 passed")();
+      test_done();
+    }
+  });
+});
+tests.push(function(test_done){
+  asyncDelayFn(200)(function(){
+    try {
+      $AG(asyncDelayFn(1000),[[[false]]]).then(function(){
+        doneLogMsg("test #11 failed")();
+      });
+    } catch (err) {
+      doneLogMsg("test #11 passed")();
+      test_done();
+    }
+  });
+});
+
+
+$AG(tests).then(doneLogMsg("ALL TESTS PASSED"));
+
+</script>
+
+
+</head>
+<body>
+<h1>Testing asyncGate.js</h1>
+<textarea id="logmsgs" cols="40" rows="15"></textarea>
+</body>
+</html>
