@@ -6,14 +6,14 @@
 (function(global){
 
   var old_$AG = global.$AG;
-
-	// test for function
-	function is_func(func) { return Object.prototype.toString.call(func) == "[object Function]"; }
-
-	// test for array
-	function is_array(arr) { return Object.prototype.toString.call(arr) == "[object Array]"; }
-	
-	// flatten array
+  
+  // test for function
+  function is_func(func) { return Object.prototype.toString.call(func) == "[object Function]"; }
+  
+  // test for array
+  function is_array(arr) { return Object.prototype.toString.call(arr) == "[object Array]"; }
+  
+  // flatten array
   function flatten_array(arr) {
     for (var i=0; i<arr.length; ) {
       if (is_array(arr[i])) {
@@ -23,11 +23,11 @@
       }
       i++;
     }
-  
+    
     return arr;
   }
-	
-	function create_sandbox() {
+  
+  function create_sandbox() {
     var instanceAPI;
     
     instanceAPI = function() {
