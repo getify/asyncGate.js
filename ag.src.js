@@ -14,25 +14,18 @@
 	function is_array(arr) { return Object.prototype.toString.call(arr) == "[object Array]"; }
 	
 	// flatten array
-	function flatten_array(arr) {
-    var i, tmp;
-    
-    for (i=0; i<arr.length; i++) {
+  function flatten_array(arr) {
+    for (var i=0; i<arr.length; ) {
       if (is_array(arr[i])) {
-        // recursion! yay!
-        tmp = flatten_array(arr[i]);
-        
         // prepend `splice()` arguments to `tmp` array, to enable `apply()` call
-        tmp.unshift(i,1);
-        [].splice.apply(arr,tmp);
-        
-        // if the array we just added in was empty, we don't want to skip forward the `i` index
-        if (tmp.length == 2) i--;
+        arr.splice.apply(arr,[i,1].concat(arr[i]));
+        continue;
       }
+      i++;
     }
-    
+  
     return arr;
-	}
+  }
 	
 	function create_sandbox() {
     var instanceAPI;
