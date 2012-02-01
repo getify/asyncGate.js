@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.1 (c) Kyle Simpson
+    v0.2 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -63,7 +63,6 @@
           // can't call 
           if (then_queue === true || then_queue.length > 0) {
             throw new Error("Can't call `and()` anymore.");
-            return chainAPI;
           }
         
           var args = flatten_array([].slice.call(arguments)),
@@ -85,6 +84,17 @@
           }
         
           return chainAPI;
+        },
+        add: function() {
+          // can't call
+          if (then_queue === true || then_queue.length > 0) {
+            throw new Error("Can't call `add()` anymore.");
+          }
+
+          var trigger;
+          // add a new trigger function to the gate, capture it to return
+          chainAPI.and(function(done){ trigger = done; });
+          return trigger;
         },
         then: function(fn) {
           // guard the parameter type... must be a function
