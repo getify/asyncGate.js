@@ -14,7 +14,9 @@ To listen for when all previously specified functions have completed, and the ga
 
 If you want to add more asynchronously-completing functions to your gate to have it wait on, simply call `and(...)` on your gate. NOTE: You cannot call `and()` after you have called `then()` to register your completion callback(s).
 
-Also, you can just add a trigger function to the gate without having to pass a function to $AG to execute, using the `add()` API function. This function will add a trigger to the gate, and return it to you directly. You cause just call that function when you are ready to trigger that part of the gate. NOTE: because `add()` returns a trigger function, it is not a "chainable" function as the other API functions are. It must be called one at a time. See below for examples.
+Use `and()` without any parameters to add (and retrieve) a trigger function directly. This allows you to pass the trigger as a traditional callback parameter to other APIs. NOTE: because this form of the `and()` call returns a trigger function, it is not a "chainable" function as the other API calls/forms are; it must be called one at a time. See below for examples.
+
+NOTE: `add()` was previously part of the API, but has now been removed, in favor of the empty `and()` form noted above.
 
 ## Usage Examples
 
@@ -53,37 +55,18 @@ Execute `fn1`, then add `fn2` to be executed, then call `yay` when complete:
     // later
     gate.then(yay);
 
-Use `add()` to add (and then retrieve) a trigger function directly:
+Use `and()` without any parameters to add (and retrieve) a trigger function directly (see discussion above):
 
     var gate = $AG();
-    fn1(gate.add());
+    fn1(gate.and());
     // later
-    fn2(gate.add());
+    fn2(gate.and());
     // later
     gate.then(yay);
 
 
 ## License 
 
-(The MIT License)
+The code and all the documentation are released under the MIT license.
 
-Copyright (c) 2011 Kyle Simpson
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+http://getify.mit-license.org/

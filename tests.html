@@ -113,9 +113,43 @@ tests.push(function(test_done){
     }
   });
 });
-
-
-$AG(tests).then(doneLogMsg("ALL TESTS PASSED"));
+tests.push(function(test_done){
+  try {
+    var g = $AG();
+    setTimeout(g.and(),2000); // get a trigger and use it as a traditional callback param
+    g.then(function(){
+      doneLogMsg("test #12 passed")();
+      test_done();
+    });
+  } catch (err) {
+    doneLogMsg("test #12 failed")();
+  }
+});
+tests.push(function(test_done){
+  try {
+    var g = $AG(), success = false;
+    g.and(function(done){
+      done(); // immediately completed first gate segment
+    })
+    .and(function(done){
+      $AG(asyncDelayFn(2500)).then(function(){
+        success = true; // this should still run before then `then(..)` handler
+        done();
+      });
+    })
+    .then(function(){
+      if (success) {
+        doneLogMsg("test #13 passed")();
+        test_done();
+      }
+      else {
+        doneLogMsg("test #13 failed")();
+      }
+    });
+  } catch (err) {
+    doneLogMsg("test #13 failed: " + err)();
+  }
+});
 
 </script>
 
@@ -124,5 +158,7 @@ $AG(tests).then(doneLogMsg("ALL TESTS PASSED"));
 <body>
 <h1>Testing asyncGate.js</h1>
 <textarea id="logmsgs" cols="40" rows="15"></textarea>
+
+<script>$AG(tests).then(doneLogMsg("ALL TESTS PASSED"));</script>
 </body>
 </html>
