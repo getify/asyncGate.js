@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.3 (c) Kyle Simpson
+    v0.4 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -33,7 +33,10 @@
     instanceAPI = function() {
       var chainAPI,
           pool = [],
-          then_queue = []
+          then_queue = [],
+          or_queue = [],
+          msgs = [],
+          gate_error = false
       ;
       
       function check_pool() {
@@ -43,31 +46,73 @@
         return true;
       }
       
-      function do_queue() {
+      function do_then_queue() {
         var fn;
+
+        // reset the error queue, if necessary
+        if (or_queue !== true && or_queue.length) or_queue = [];
+        pool = [];
         
-        // make sure at least one `then` callback is registered
+        // make sure at least one success callback is registered
         if (then_queue !== true && then_queue.length) {
-          pool = [];
-          while (fn = then_queue.shift()) fn(); // empty the queue
+          // empty the queue
+          while (fn = then_queue.shift()) {
+            if (msgs.length > 0) {
+              fn.apply({},msgs);
+              msgs = [];
+            }
+            else fn.call({});
+          }
           then_queue = true; // flag it as complete
         }
+      }
+
+      function do_or_queue() {
+        var fn;
+
+        // reset the success queue
+        then_queue = true;
+        pool = [];
+        
+        // make sure at least one error callback is registered
+        if (or_queue !== true && or_queue.length) {
+          // empty the queue
+          while (fn = or_queue.shift()) {
+            if (msgs.length > 0) {
+              fn.apply({},msgs);
+              msgs = [];
+            }
+            else fn.call({});
+          }
+          or_queue = true; // flag it as complete
+        }
+      }
+
+      function createTrigger() {
+        var pool_idx = pool.length, fn;
+        pool[pool_idx] = false;
+        fn = function(){
+          if (!gate_error) {
+            if (arguments.length > 0) msgs.push([].slice.call(arguments));
+            pool[pool_idx] = true;
+            if (check_pool()) do_then_queue();
+          }
+        };
+        fn.fail = function(){
+          if (!gate_error) {
+            if (arguments.length > 0) msgs.push([].slice.call(arguments));
+            gate_error = true;
+            do_or_queue();
+          }
+        };
+        return fn;
       }
       
       chainAPI = {
         and: function() {
-          function createTrigger() {
-            var pool_idx = pool.length;
-            pool[pool_idx] = false;
-            return function(){
-              pool[pool_idx] = true;
-              if (check_pool()) do_queue();
-            };
-          }
-
-          // can't call
-          if (then_queue === true || then_queue.length > 0) {
-            throw new Error("Can't call `and()` anymore.");
+          // can't call `and()` anymore
+          if (then_queue === true) {
+            throw new Error("Wrong: gate has already been activated.");
           }
 
           var args, i;
@@ -87,17 +132,37 @@
           return chainAPI;
         },
         then: function(fn) {
+          // if we're already in an error-state for this gate, ignore call
+          if (gate_error) return chainAPI;
+
           // guard the parameter type... must be a function
           if (!is_func(fn)) throw new Error("Wrong: non-function parameter passed in.");
           
           // are we still adding to the `then` queue?
           if (then_queue !== true) {
             then_queue.push(fn);
-            if (check_pool()) do_queue();
+            if (check_pool()) do_then_queue();
           }
           // otherwise, the gate's already open, so fire immediately
-          else fn();
+          else {
+            or_queue = [];
+            fn.call({});
+          }
           
+          return chainAPI;
+        },
+        or: function(fn) {
+          // guard the parameter type... must be a function
+          if (!is_func(fn)) throw new Error("Wrong: non-function parameter passed in.");
+
+          if (gate_error || or_queue === true) {
+            fn.apply({},msgs);
+            msgs = [];
+          }
+          else {
+            or_queue.push(fn);
+          }
+
           return chainAPI;
         }
       };

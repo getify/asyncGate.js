@@ -91,7 +91,7 @@ tests.push(function(test_done){
 tests.push(function(test_done){
   asyncDelayFn(200)(function(){
     try {
-      $AG(asyncDelayFn(1000)).then(function(){})
+      $AG(function(done){done();}).then(function(){})
       .and(function(done){
         doneLogMsg("test #10 failed")();
       });
@@ -150,6 +150,142 @@ tests.push(function(test_done){
     doneLogMsg("test #13 failed: " + err)();
   }
 });
+tests.push(function(test_done){
+  $AG(function(done){
+    setTimeout(done.fail,1000);
+  })
+  .then(function(){
+    doneLogMsg("test #14 failed")();
+  })
+  .or(function(){
+    doneLogMsg("test #14 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG(function(done){
+    done("hello","world");
+  })
+  .and(function(done){
+    setTimeout(function(){
+      done({foo:"bar"});
+    },1000);
+  })
+  .then(function(){
+    var args = [].slice.call(arguments);
+    try {
+      if (args[0][0] == "hello" && args[0][1] == "world" && args[1][0].foo == "bar") {
+        doneLogMsg("test #15 passed")();
+        test_done();
+      }
+      else throw new Error("");
+    }
+    catch (err) {
+      doneLogMsg("test #15 failed: " + JSON.stringify(args))();
+    }
+  });
+});
+tests.push(function(test_done){
+  $AG(function(done){
+    done("hello","world");
+  })
+  .and(function(done){
+    done.fail({foo:"bar"});
+  })
+  .then(function(){
+    doneLogMsg("test #16 failed")();
+  })
+  .or(function(){
+    var args = [].slice.call(arguments);
+    try {
+      if (args[0][0] == "hello" && args[0][1] == "world" && args[1][0].foo == "bar") {
+        doneLogMsg("test #16 passed")();
+        test_done();
+      }
+      else throw new Error("");
+    }
+    catch (err) {
+      doneLogMsg("test #16 failed: " + JSON.stringify(args))();
+    }
+  });
+});
+tests.push(function(test_done){
+  $AG(function(done){
+    done();
+  })
+  .or(function(){
+    doneLogMsg("test #17 failed")();
+  })
+  .then(function(){
+    doneLogMsg("test #17 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  $AG(function(done){
+    done.fail();
+  })
+  .then(function(){
+    doneLogMsg("test #18 failed")();
+  })
+  .or(function(){
+    doneLogMsg("test #18 passed")();
+    test_done();
+  });
+});
+tests.push(function(test_done){
+  var test_success = true, or_count = 0, timer, args, gate;
+
+  gate = $AG(function(done){
+    done("hello");
+  })
+  .and(function(done){
+    setTimeout(function(){
+      done("mikey");
+    },1000);
+  })
+  .and(function(done){
+    setTimeout(function(){
+      done.fail("world");
+    },500);
+  })
+  .and(function(done){
+    setTimeout(function(){
+      done.fail("foobar");
+    },1500);
+  })
+  .then(function(){
+    test_success = false;
+  });
+
+  setTimeout(function(){
+    gate.or(function(){
+      or_count++;
+      if (or_count == 1) {
+        args = [].slice.call(arguments);
+        try {
+          if (!(args.length == 2 && args[0][0] == "hello" && args[1][0] == "world")) {
+            test_success = false;
+          }
+        }
+        catch (err) { test_success = false; }
+      }
+      else test_success = false;
+    });
+  },2500);
+
+  setTimeout(function(){
+    gate.or(function(){
+      if (test_success && or_count == 1) {
+        doneLogMsg("test #19 passed")();
+        test_done();
+      }
+      else {
+        doneLogMsg("test #19 failed: " + JSON.stringify(args))();
+      }
+    });
+  },3000);
+});
 
 </script>
 
@@ -157,7 +293,7 @@ tests.push(function(test_done){
 </head>
 <body>
 <h1>Testing asyncGate.js</h1>
-<textarea id="logmsgs" cols="40" rows="15"></textarea>
+<textarea id="logmsgs" cols="40" rows="25"></textarea>
 
 <script>$AG(tests).then(doneLogMsg("ALL TESTS PASSED"));</script>
 </body>
