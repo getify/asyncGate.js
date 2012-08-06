@@ -171,10 +171,10 @@ tests.push(function(test_done){
       done({foo:"bar"});
     },1000);
   })
-  .then(function(){
+  .then(function(msg1,msg2){
     var args = [].slice.call(arguments);
     try {
-      if (args[0][0] == "hello" && args[0][1] == "world" && args[1][0].foo == "bar") {
+      if (args.length == 2 && msg1[0] == "hello" && msg1[1] == "world" && msg2[0].foo == "bar") {
         doneLogMsg("test #15 passed")();
         test_done();
       }
@@ -195,10 +195,10 @@ tests.push(function(test_done){
   .then(function(){
     doneLogMsg("test #16 failed")();
   })
-  .or(function(){
+  .or(function(msg1,msg2){
     var args = [].slice.call(arguments);
     try {
-      if (args[0][0] == "hello" && args[0][1] == "world" && args[1][0].foo == "bar") {
+      if (args.length == 2 && msg1[0] == "hello" && msg1[1] == "world" && msg2[0].foo == "bar") {
         doneLogMsg("test #16 passed")();
         test_done();
       }
@@ -259,12 +259,12 @@ tests.push(function(test_done){
   });
 
   setTimeout(function(){
-    gate.or(function(){
+    gate.or(function(msg1,msg2){
       or_count++;
       if (or_count == 1) {
         args = [].slice.call(arguments);
         try {
-          if (!(args.length == 2 && args[0][0] == "hello" && args[1][0] == "world")) {
+          if (!(args.length == 2 && msg1[0] == "hello" && msg2[0] == "world")) {
             test_success = false;
           }
         }

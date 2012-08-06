@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.4 (c) Kyle Simpson
+    v0.4.1 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -30,15 +30,7 @@
   function create_sandbox() {
     var instanceAPI;
     
-    instanceAPI = function() {
-      var chainAPI,
-          pool = [],
-          then_queue = [],
-          or_queue = [],
-          msgs = [],
-          gate_error = false
-      ;
-      
+    instanceAPI = function() {      
       function check_pool() {
         for (var i=0; i<pool.length; i++) {
           if (!pool[i]) return false;
@@ -107,7 +99,15 @@
         };
         return fn;
       }
-      
+
+      var chainAPI,
+          pool = [],
+          then_queue = [],
+          or_queue = [],
+          msgs = [],
+          gate_error = false
+      ;
+    
       chainAPI = {
         and: function() {
           // can't call `and()` anymore
