@@ -24,6 +24,8 @@ Use `and()` without any parameters to add (and retrieve) a trigger directly. Thi
 
 NOTE: `add()` was previously part of the API, but has now been removed, in favor of the empty `and()` form noted above.
 
+You can also `abort()` a gate at any time, which will prevent any further actions from occurring on that gate (all callbacks will be ignored). The call to `abort()` can happen on the gate API itself, or using the `abort` flag on a completion callback in any segment of the gate (see below).
+
 ## Usage Examples
 
 Using the following example setup:
@@ -100,7 +102,23 @@ Listen for an error in one of the gate's segments:
     .or(function(errMsg){
         alert("Error: " + errMsg[0]); // Error: bad news!
     });
+
+Abort a gate in progress:
+
+    var gate = $AG(fn1,fn2).then(yay);
+    setTimeout(function(){
+        gate.abort(); // will stop the gate from running `yay()`
+    },100);
     
+    // same as above
+    $AG(fn1,fn2)
+    .and(function(done){
+        setTimeout(function(){
+            done.abort(); // `abort` flag will stop the gate from running `yay()`
+        },100);
+    })
+    .then(yay);
+
 ## License 
 
 The code and all the documentation are released under the MIT license.

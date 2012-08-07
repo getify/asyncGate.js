@@ -286,6 +286,83 @@ tests.push(function(test_done){
     });
   },3000);
 });
+tests.push(function(test_done){
+  var test_success = true, gate = $AG();
+
+  gate
+  .and(asyncDelayFn(2000))
+  .then(function(){
+    test_success = false;
+  });
+
+  setTimeout(function(){
+    gate.abort();
+  },1000);
+
+  setTimeout(function(){
+    if (test_success) {
+      doneLogMsg("test #20 passed")();
+      test_done();
+    }
+    else {
+      doneLogMsg("test #20 failed")();
+    }
+  },3000);
+});
+tests.push(function(test_done){
+  var test_success = true, gate = $AG();
+
+  gate
+  .and(asyncDelayFn(2000))
+  .and(function(done){
+    setTimeout(done.fail,2000);
+  })
+  .then(function(){
+    test_success = false;
+  })
+  .or(function(){
+    test_success = false;
+  });
+
+  setTimeout(function(){
+    gate.abort();
+  },1000);
+
+  setTimeout(function(){
+    if (test_success) {
+      doneLogMsg("test #21 passed")();
+      test_done();
+    }
+    else {
+      doneLogMsg("test #21 failed")();
+    }
+  },3000);
+});
+tests.push(function(test_done){
+  var test_success = true, gate = $AG();
+
+  gate
+  .and(asyncDelayFn(2000))
+  .and(function(done){
+    setTimeout(done.abort,500);
+  })
+  .then(function(){
+    test_success = false;
+  })
+  .or(function(){
+    test_success = false;
+  });
+
+  setTimeout(function(){
+    if (test_success) {
+      doneLogMsg("test #22 passed")();
+      test_done();
+    }
+    else {
+      doneLogMsg("test #22 failed")();
+    }
+  },3000);
+});
 
 </script>
 
