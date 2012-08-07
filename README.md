@@ -107,14 +107,14 @@ Abort a gate in progress:
 
     var gate = $AG(fn1,fn2).then(yay);
     setTimeout(function(){
-        gate.abort(); // will stop the gate from running `yay()`
-    },100);
+        gate.abort(); // will stop the gate before running `yay`
+    },1500);
     
     // same as above
     $AG(fn1,fn2)
     .and(function(done){
         setTimeout(function(){
-            done.abort(); // `abort` flag will stop the gate from running `yay()`
+            done.abort(); // `abort` flag will stop the gate before running `yay`
         },100);
     })
     .then(yay);
