@@ -24,7 +24,7 @@ Use `and()` without any parameters to add (and retrieve) a trigger directly. Thi
 
 NOTE: `add()` was previously part of the API, but has now been removed, in favor of the empty `and()` form noted above.
 
-You can also `abort()` a gate at any time, which will prevent any further actions from occurring on that gate (all callbacks will be ignored). The call to `abort()` can happen on the gate API itself, or using the `abort` flag on a completion callback in any segment of the gate (see below).
+You can also `abort()` a gate at any time, which will prevent any further actions from occurring on that gate (all callbacks will be ignored). The call to `abort()` can happen on the gate API itself, or using the `abort` flag on a completion callback in any segment of the gate (see example below).
 
 ## Usage Examples
 
