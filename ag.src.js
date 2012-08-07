@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.5 (c) Kyle Simpson
+    v0.5.1 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -50,7 +50,7 @@
         // make sure at least one success callback is registered
         if (then_queue !== true && then_queue.length) {
           // empty the queue
-          while (fn = then_queue.shift()) {
+          while (then_queue && (fn = then_queue.shift())) {
             if (msgs.length > 0) {
               fn.apply({},msgs);
               msgs = [];
@@ -73,7 +73,7 @@
         // make sure at least one error callback is registered
         if (or_queue !== true && or_queue.length) {
           // empty the queue
-          while (fn = or_queue.shift()) {
+          while (or_queue && (fn = or_queue.shift())) {
             if (msgs.length > 0) {
               fn.apply({},msgs);
               msgs = [];
