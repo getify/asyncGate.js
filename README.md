@@ -1,6 +1,6 @@
 # asyncGate.js
 
-A lightweight API for performing parallel async tasks with a "gate" waiting for all to finish before proceeding.
+A lightweight API for performing parallel async tasks with a "gate", waiting for all segments to finish before proceeding.
 
 ## Explanation
 
