@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.5.1 (c) Kyle Simpson
+    v0.5.2 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -103,7 +103,7 @@
         };
         fn.abort = function(){
           chainAPI.abort();
-        }
+        };
         return fn;
       }
 
