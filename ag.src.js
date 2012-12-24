@@ -52,10 +52,10 @@
           // empty the queue
           while (then_queue && (fn = then_queue.shift())) {
             if (msgs.length > 0) {
-              fn.apply({},msgs);
+              fn.apply(null,msgs);
               msgs = [];
             }
-            else fn.call({});
+            else fn();
           }
           then_queue = true; // flag it as complete
         }
@@ -75,10 +75,10 @@
           // empty the queue
           while (or_queue && (fn = or_queue.shift())) {
             if (msgs.length > 0) {
-              fn.apply({},msgs);
+              fn.apply(null,msgs);
               msgs = [];
             }
-            else fn.call({});
+            else fn();
           }
           or_queue = true; // flag it as complete
         }
@@ -181,7 +181,7 @@
           // otherwise, the gate's already open, so fire immediately
           else {
             or_queue = [];
-            fn.apply({},msgs);
+            fn.apply(null,msgs);
             msgs = [];
           }
           
@@ -194,7 +194,7 @@
           if (!is_func(fn)) throw new Error("Wrong: non-function parameter passed in.");
 
           if (gate_error || or_queue === true) {
-            fn.apply({},msgs);
+            fn.apply(null,msgs);
             msgs = [];
           }
           else {
@@ -210,7 +210,7 @@
       };
       
       // add in arguments passed as constructor parameters
-      if (arguments.length > 0) chainAPI.and.apply({},arguments);
+      if (arguments.length > 0) chainAPI.and.apply(null,arguments);
       
       return chainAPI;
     };
