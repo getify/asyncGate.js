@@ -1,5 +1,5 @@
 /*! asyncGate.js
-    v0.5.2 (c) Kyle Simpson
+    v0.6.0 (c) Kyle Simpson
     MIT License: http://getify.mit-license.org
 */
 
@@ -26,11 +26,11 @@
     
     return arr;
   }
-  
+
   function create_sandbox() {
     var instanceAPI;
     
-    instanceAPI = function() {      
+    instanceAPI = function() {
       function check_pool() {
         for (var i=0; i<pool.length; i++) {
           if (!pool[i]) return false;
@@ -85,9 +85,13 @@
       }
 
       function createTrigger() {
-        var pool_idx = pool.length, fn;
+        var pool_idx = pool.length, fn, deferred;
         pool[pool_idx] = false;
         fn = function(){
+          if (deferred) {
+            deferred.abort();
+            deferred = null;
+          }
           if (!(gate_error || aborted)) {
             if (arguments.length > 0) msgs.push([].slice.call(arguments));
             pool[pool_idx] = true;
@@ -95,6 +99,10 @@
           }
         };
         fn.fail = function(){
+          if (deferred) {
+            deferred.abort();
+            deferred = null;
+          }
           if (!(gate_error || aborted)) {
             if (arguments.length > 0) msgs.push([].slice.call(arguments));
             gate_error = true;
@@ -102,7 +110,24 @@
           }
         };
         fn.abort = function(){
+          if (deferred) {
+            deferred.abort();
+            deferred = null;
+          }
           chainAPI.abort();
+        };
+        fn.defer = function(){
+          if (deferred) throw new Error("defer() already called.");
+          if (arguments.length == 0) throw new Error("Missing argument to defer().");
+          deferred = global.$AG.apply($AG,arguments)
+          .then(function(){
+            deferred = null;
+            fn.apply(this,arguments);
+          })
+          .or(function(){
+            deferred = null;
+            fn.fail.apply(this,arguments);
+          });
         };
         return fn;
       }

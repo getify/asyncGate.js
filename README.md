@@ -10,9 +10,11 @@ You create a gate by calling `$AG(...)`. **Each time you call `$AG()`, you creat
 
 To each gate, you pass in one or more functions, **which $AG will execute for you**. To each function that $AG executes, it will pass as the first parameter a trigger. You simply need to make sure this trigger function is called at some point later, when your task is complete. NOTE: your tasks can be either synchronous (completing immediately) or asynchronous; it makes no difference to $AG.
 
-The trigger can be called as a function directly, or you can add a flag to the trigger call which notifies the gate of a failure to properly complete.
+The trigger can be called as a function directly, or you can add a "fail" flag to the trigger call which notifies the gate of a failure to properly complete.
 
-For both the direct trigger call, and the failure flag trigger call, you can pass any number of parameters ("messages"), which will be passed along to the first success (`then()`) or failure (`or()`) handler. For instance, you can pass along the response text from an XHR call, or any error message you receive from the server.
+For both the direct trigger call, and the failure flag trigger call, you can pass any number of parameters ("messages"), which will be passed along to the first success (`then()`) or failure (`or()`) handler, respectively. For instance, you can pass along the response text from an XHR call, or any error message you receive from the server.
+
+You can defer the trigger (which implicitly creates another gate) by adding the "defer" flag to the trigger call. For the "defer" flag trigger call, you'll need to specify at least one function for the new sub-gate. If the sub-gate is completed, the deferred trigger will automatically be completed. If the sub-gate is failed, the deferred trigger will be failed. If the sub-gate is aborted, the trigger will be aborted.
 
 To listen for when all previously specified functions have completed, and the gate can then be "opened" (metaphorically speaking), simply call `then(...)` on your gate to register a completion callback. You can call `then()` as many times as you would like. If you call `then()` on a gate that is already completed, the callback you specify will just be executed immediately.
 
@@ -118,6 +120,25 @@ Abort a gate in progress:
         },100);
     })
     .then(yay);
+
+Defer a gate's trigger (with a sub-gate):
+
+    $AG(fn1,fn2)
+    .and(function(done){
+        done.defer( // defer this trigger with a sub-gate
+            fn1,
+            fn2,
+            function(done2){
+                setTimeout(function(){
+                    done2.fail("bummer!");
+                },500);
+            }
+        );
+    })
+    .then(yay) // won't ever fire
+    .or(function(errMsg){
+        alert("Error: " + errMsg[0][0]); // Error: bummer!
+    });
 
 ## License 
 
