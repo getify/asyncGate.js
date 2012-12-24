@@ -119,14 +119,14 @@
         fn.defer = function(){
           if (deferred) throw new Error("defer() already called.");
           if (arguments.length == 0) throw new Error("Missing argument to defer().");
-          deferred = global.$AG.apply($AG,arguments)
+          deferred = global.$AG.apply(null,arguments)
           .then(function(){
             deferred = null;
-            fn.apply(this,arguments);
+            fn.apply(null,arguments);
           })
           .or(function(){
             deferred = null;
-            fn.fail.apply(this,arguments);
+            fn.fail.apply(null,arguments);
           });
         };
         return fn;
