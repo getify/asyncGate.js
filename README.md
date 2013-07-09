@@ -1,6 +1,8 @@
-# asyncGate.js
+# ~~asyncGate.js~~
 
-A lightweight API for performing parallel async tasks with a "gate", waiting for all segments to finish before proceeding.
+~~A lightweight API for performing parallel async tasks with a "gate", waiting for all segments to finish before proceeding.~~
+
+**UPDATE:** this project is now deprecated and has been replaced by the combined [asynquence](http://github.com/getify/asynquence) library, which implements both `gate(..)`s and sequences.
 
 ## Explanation
 
